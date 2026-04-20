@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Manager - TaskFlow</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TaskFlow</div>
+      <nav class="menu">
+        <button class="menu-item" onclick="navigate('index.html')">Dashboard</button>
+        <button class="menu-item" onclick="navigate('projects.html')">Projects</button>
+        <button class="menu-item" onclick="navigate('my-tasks.html')">My Tasks</button>
+        <button class="menu-item" onclick="navigate('calendar.html')">Calendar</button>
+        <button class="menu-item active" onclick="navigate('time-manager.html')">Time Manager</button>
+        <button class="menu-item" onclick="navigate('settings.html')">Settings</button>
+      </nav>
+    </aside>
+
+    <main class="dashboard">
+      <header class="topbar">
+        <h1>Time Manager - Pomodoro Timer</h1>
+      </header>
+
+      <section class="content-grid" style="grid-template-columns: 1fr 1fr;">
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Pomodoro Timer</h3>
+          </div>
+
+          <div class="timer-container">
+            <div class="timer-display" id="timer-display">25:00</div>
+
+            <div class="timer-stats">
+              <div class="timer-stat">
+                <span class="stat-label">Session Mode</span>
+                <span class="stat-value" id="mode-display">Work</span>
+              </div>
+            </div>
+
+            <div class="timer-controls">
+              <button id="timer-start" class="timer-btn primary">Start</button>
+              <button id="timer-pause" class="timer-btn secondary" hidden>Pause</button>
+              <button id="timer-reset" class="timer-btn secondary">Reset</button>
+            </div>
+
+            <div class="timer-presets">
+              <button class="preset-btn" onclick="setTimer(25, 'work')">Work (25m)</button>
+              <button class="preset-btn" onclick="setTimer(5, 'break')">Break (5m)</button>
+              <button class="preset-btn" onclick="setTimer(15, 'break')">Long Break (15m)</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Time Tracking Stats</h3>
+          </div>
+
+          <div class="stats-container">
+            <div class="stat-box">
+              <p class="stat-label">Today's Focus Time</p>
+              <p class="stat-value" id="today-focus">0:00</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">Sessions Completed</p>
+              <p class="stat-value" id="sessions-count">0</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">Total Break Time</p>
+              <p class="stat-value" id="total-breaks">0:00</p>
+            </div>
+
+            <div class="stat-box">
+              <p class="stat-label">This Week's Focus</p>
+              <p class="stat-value" id="week-focus">0:00</p>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+            <button style="width: 100%; margin-bottom: 8px;" onclick="exportStats()">Export Stats</button>
+            <button style="width: 100%; background: #ffffff; border-color: #d1d5db; color: #374151;" onclick="resetStats()">Reset All Data</button>
+          </div>
+        </section>
+
+        <section class="panel" style="grid-column: span 2;">
+          <div class="panel-header">
+            <h3>Session History</h3>
+            <span id="session-count-header">0 Sessions</span>
+          </div>
+
+          <div id="session-history" class="session-list">
+            <div class="empty">No sessions logged yet. Start your first session!</div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <style>
+    .timer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .timer-display {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #f97316;
+      font-family: "Courier New", monospace;
+      text-align: center;
+      padding: 32px;
+      background: #fff7ed;
+      border-radius: 16px;
+      width: 100%;
+      margin: 16px 0;
+    }
+
+    .timer-stats {
+      width: 100%;
+      display: grid;
+      gap: 12px;
+    }
+
+    .timer-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .timer-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .timer-btn.primary {
+      background: #f97316;
+      color: #ffffff;
+      border-color: #f97316;
+    }
+
+    .timer-btn.primary:hover {
+      opacity: 0.9;
+    }
+
+    .timer-btn.secondary {
+      background: #ffffff;
+      color: #374151;
+      border-color: #d1d5db;
+    }
+
+    .timer-btn.secondary:hover {
+      background: #f9fafb;
+    }
+
+    .timer-presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .preset-btn {
+      padding: 10px 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      color: #374151;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      background: #fff7ed;
+      border-color: #f97316;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stat-box {
+      padding: 14px;
+      background: #f9fafb;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-label {
+      display: block;
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f97316;
+    }
+
+    .session-list {
+      display: grid;
+      gap: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .session-item {
+      padding: 12px;
+      background: #f9fafb;
+      border-left: 3px solid #f97316;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+
+    .session-time {
+      color: #6b7280;
+      font-size: 0.8rem;
+    }
+  </style>
+
+  <script>
+    function navigate(page) {
+      window.location.href = page;
+    }
+
+    let timerSeconds = 25 * 60;
+    let initialSeconds = timerSeconds;
+    let timerInterval = null;
+    let isRunning = false;
+    let timerMode = 'work';
+    let sessionsData = [];
+
+    async function fetchSessions() {
+      try {
+        const response = await fetch('/api/timer-sessions');
+        if (response.ok) {
+          sessionsData = await response.json();
+          updateStats();
+          renderHistory();
+        }
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+      }
+    }
+
+    const timerDisplay = document.getElementById("timer-display");
+    const timerStart = document.getElementById("timer-start");
+    const timerPause = document.getElementById("timer-pause");
+    const timerReset = document.getElementById("timer-reset");
+    const modeDisplay = document.getElementById("mode-display");
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+
+    function updateDisplay() {
+      timerDisplay.textContent = formatTime(timerSeconds);
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      timerStart.hidden = true;
+      timerPause.hidden = false;
+
+      timerInterval = setInterval(() => {
+        if (timerSeconds > 0) {
+          timerSeconds--;
+          updateDisplay();
+        } else {
+          completeSession();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isRunning = false;
+      clearInterval(timerInterval);
+      timerStart.hidden = false;
+      timerPause.hidden = true;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timerSeconds = initialSeconds;
+      updateDisplay();
+    }
+
+    function setTimer(minutes, mode) {
+      resetTimer();
+      timerMode = mode;
+      initialSeconds = minutes * 60;
+      timerSeconds = initialSeconds;
+      modeDisplay.textContent = mode === 'work' ? 'Work' : 'Break';
+      updateDisplay();
+    }
+
+    async function completeSession() {
+      pauseTimer();
+      const sessionData = {
+        mode: timerMode,
+        duration: initialSeconds,
+        completedAt: new Date().toISOString()
+      };
+
+      try {
+        const response = await fetch('/api/timer-sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sessionData)
+        });
+
+        if (response.ok) {
+          const newSession = await response.json();
+          sessionsData.push(newSession);
+          updateStats();
+          renderHistory();
+
+          alert(`Great! ${timerMode === 'work' ? 'Work' : 'Break'} session completed!`);
+          resetTimer();
+        }
+      } catch (error) {
+        console.error('Error saving session:', error);
+        alert('Session completed but could not save to database');
+        resetTimer();
+      }
+    }
+
+    function updateStats() {
+      const today = new Date().toDateString();
+      const todaySessions = sessionsData.filter(s => new Date(s.completedAt).toDateString() === today);
+      const workTime = todaySessions.filter(s => s.mode === 'work').reduce((sum, s) => sum + s.duration, 0);
+      const breakTime = todaySessions.filter(s => s.mode === 'break').reduce((sum, s) => sum + s.duration, 0);
+      const workSessions = todaySessions.filter(s => s.mode === 'work').length;
+
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const weekSessions = sessionsData.filter(s => new Date(s.completedAt) > weekAgo && s.mode === 'work');
+      const weekTime = weekSessions.reduce((sum, s) => sum + s.duration, 0);
+
+      document.getElementById("today-focus").textContent = formatTime(workTime);
+      document.getElementById("total-breaks").textContent = formatTime(breakTime);
+      document.getElementById("sessions-count").textContent = workSessions;
+      document.getElementById("week-focus").textContent = formatTime(weekTime);
+      document.getElementById("session-count-header").textContent = `${sessionsData.length} Session${sessionsData.length !== 1 ? 's' : ''}`;
+    }
+
+    function renderHistory() {
+      const historyDiv = document.getElementById("session-history");
+      if (sessionsData.length === 0) {
+        historyDiv.innerHTML = '<div class="empty">No sessions logged yet. Start your first session!</div>';
+        return;
+      }
+
+      historyDiv.innerHTML = sessionsData.slice().reverse().slice(0, 10).map(session => `
+        <div class="session-item">
+          <div style="display: flex; justify-content: space-between;">
+            <strong>${session.mode === 'work' ? '💼 Work' : '☕ Break'} Session</strong>
+            <span style="color: #f97316; font-weight: 600;">${formatTime(session.duration)}</span>
+          </div>
+          <p class="session-time">${new Date(session.completedAt).toLocaleString()}</p>
+        </div>
+      `).join("");
+    }
+
+    function exportStats() {
+      const data = {
+        sessions: sessionsData,
+        exportedAt: new Date().toISOString()
+      };
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "timer-stats.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function resetStats() {
+      if (confirm("Are you sure? This will delete all timer data!")) {
+        if (confirm("Really? Last chance to confirm!")) {
+          sessionsData = [];
+          updateStats();
+          renderHistory();
+          // Note: This only clears local data, not database data
+        }
+      }
+    }
+
+    timerStart.addEventListener("click", startTimer);
+    timerPause.addEventListener("click", pauseTimer);
+    timerReset.addEventListener("click", resetTimer);
+
+    updateDisplay();
+    fetchSessions();
+  </script>
+</body>
+</html>

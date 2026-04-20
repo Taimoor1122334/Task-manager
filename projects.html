@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects - TaskFlow</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TaskFlow</div>
+      <nav class="menu">
+        <button class="menu-item" onclick="navigate('index.html')">Dashboard</button>
+        <button class="menu-item active" onclick="navigate('projects.html')">Projects</button>
+        <button class="menu-item" onclick="navigate('my-tasks.html')">My Tasks</button>
+        <button class="menu-item" onclick="navigate('calendar.html')">Calendar</button>
+        <button class="menu-item" onclick="navigate('time-manager.html')">Time Manager</button>
+        <button class="menu-item" onclick="navigate('settings.html')">Settings</button>
+      </nav>
+    </aside>
+
+    <main class="dashboard">
+      <header class="topbar">
+        <h1>Projects</h1>
+        <input type="text" id="search-projects" placeholder="Search projects..." />
+      </header>
+
+      <section id="notifications" class="notice" hidden></section>
+
+      <section class="content-grid" style="grid-template-columns: 1fr;">
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Create New Project</h3>
+          </div>
+
+          <form id="create-project-form" class="project-form">
+            <input type="text" id="new-project-name" placeholder="Project name" />
+            <input type="text" id="new-project-description" placeholder="Project description" />
+            <select id="new-project-status">
+              <option value="active">Active</option>
+              <option value="planning">Planning</option>
+              <option value="completed">Completed</option>
+            </select>
+            <input type="date" id="new-project-deadline" />
+            <button type="submit">Create Project</button>
+            <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" style="display: none; background: #6b7280; grid-column: span 1;">Cancel</button>
+          </form>
+        </section>
+
+        <section class="panel panel-projects">
+          <div class="panel-header">
+            <h3>Your Projects</h3>
+            <span id="project-count" class="badge">0 Projects</span>
+          </div>
+          <div id="projects-list" class="projects-grid">
+            <div class="empty">No projects yet. Create one to get started!</div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <style>
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .project-card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .project-card:hover {
+      border-color: #f97316;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .project-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .project-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1f2937;
+      word-break: break-word;
+    }
+
+    .project-status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    .project-status-badge.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .project-status-badge.planning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .project-status-badge.completed {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .project-desc {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #6b7280;
+      line-height: 1.5;
+      min-height: 40px;
+    }
+
+    .project-details {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.875rem;
+    }
+
+    .detail-label {
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .detail-value {
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    .project-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-edit,
+    .btn-delete {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .btn-edit {
+      background: #f97316;
+      border-color: #f97316;
+      color: #ffffff;
+    }
+
+    .btn-edit:hover {
+      background: #ea580c;
+      border-color: #ea580c;
+    }
+
+    .btn-delete {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
+
+    .btn-delete:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
+    .panel-projects {
+      grid-column: 1 / -1;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #f3f4f6;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    .project-form {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+      margin-bottom: 16px;
+    }
+
+    .project-form input,
+    .project-form select {
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-family: inherit;
+    }
+
+    .project-form button {
+      grid-column: span 1;
+      padding: 10px 16px;
+      background: #f97316;
+      border: none;
+      border-radius: 8px;
+      color: #ffffff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .project-form button:hover {
+      background: #ea580c;
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 32px;
+      text-align: center;
+      color: #9ca3af;
+      background: #f9fafb;
+      border: 2px dashed #e5e7eb;
+      border-radius: 8px;
+    }
+  </style>
+
+  <script>
+    function navigate(page) {
+      window.location.href = page;
+    }
+
+    const createProjectForm = document.getElementById("create-project-form");
+    const projectsList = document.getElementById("projects-list");
+    const projectCount = document.getElementById("project-count");
+    let projects = [];
+    let editingProjectId = null;
+
+    async function fetchProjects() {
+      try {
+        const response = await fetch('/api/projects');
+        if (response.ok) {
+          projects = await response.json();
+          renderProjects();
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    }
+
+    function renderProjects() {
+      if (projects.length === 0) {
+        projectsList.innerHTML = '<div class="empty">No projects yet. Create one to get started!</div>';
+        projectCount.textContent = "0 Projects";
+        return;
+      }
+
+      projectsList.innerHTML = projects.map(project => `
+        <div class="project-card">
+          <div class="project-card-header">
+            <div>
+              <h3 class="project-title">${project.name}</h3>
+              <span class="project-status-badge ${project.status || 'active'}">${project.status || 'active'}</span>
+            </div>
+          </div>
+          <p class="project-desc">${project.description || 'No description added'}</p>
+          <div class="project-details">
+            <div class="detail-item">
+              <span class="detail-label">Deadline:</span>
+              <span class="detail-value">${project.deadline ? new Date(project.deadline).toLocaleDateString() : 'No deadline'}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Tasks:</span>
+              <span class="detail-value">${project.taskCount || 0}</span>
+            </div>
+          </div>
+          <div class="project-card-actions">
+            <button class="btn-edit" onclick="editProject('${project.id}')">Edit</button>
+            <button class="btn-delete" onclick="deleteProject('${project.id}')">Delete</button>
+          </div>
+        </div>
+      `).join("");
+
+      projectCount.textContent = `${projects.length} Project${projects.length !== 1 ? "s" : ""}`;
+    }
+
+    createProjectForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        name: document.getElementById("new-project-name").value,
+        description: document.getElementById("new-project-description").value,
+        status: document.getElementById("new-project-status").value,
+        deadline: document.getElementById("new-project-deadline").value
+      };
+
+      try {
+        let response;
+        if (editingProjectId) {
+          // Update existing project
+          response = await fetch(`/api/projects/${editingProjectId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+        } else {
+          // Create new project
+          response = await fetch('/api/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+        }
+
+        if (response.ok) {
+          const updatedProject = await response.json();
+          if (editingProjectId) {
+            // Update project in array
+            const index = projects.findIndex(p => p.id === editingProjectId);
+            if (index !== -1) {
+              projects[index] = updatedProject;
+            }
+            showNotification("Project updated successfully!", "success");
+          } else {
+            projects.push(updatedProject);
+            showNotification("Project created successfully!", "success");
+          }
+
+          renderProjects();
+          createProjectForm.reset();
+          cancelEdit();
+        } else {
+          const error = await response.json();
+          showNotification(error.error, "error");
+        }
+      } catch (error) {
+        console.error('Error saving project:', error);
+        showNotification("Error saving project", "error");
+      }
+    });
+
+    async function deleteProject(id) {
+      if (confirm("Are you sure you want to delete this project?")) {
+        try {
+          const response = await fetch(`/api/projects/${id}`, {
+            method: 'DELETE'
+          });
+
+          if (response.ok) {
+            projects = projects.filter(p => p.id !== parseInt(id));
+            renderProjects();
+            showNotification("Project deleted!", "success");
+          } else {
+            const error = await response.json();
+            showNotification(error.error, "error");
+          }
+        } catch (error) {
+          console.error('Error deleting project:', error);
+          showNotification("Error deleting project", "error");
+        }
+      }
+    }
+
+    async function editProject(id) {
+      const project = projects.find(p => p.id === parseInt(id));
+      if (project) {
+        editingProjectId = parseInt(id);
+        document.getElementById("new-project-name").value = project.name;
+        document.getElementById("new-project-description").value = project.description || '';
+        document.getElementById("new-project-status").value = project.status || 'active';
+        document.getElementById("new-project-deadline").value = project.deadline || '';
+
+        // Change button text and show cancel button
+        document.querySelector('#create-project-form button[type="submit"]').textContent = 'Update Project';
+        document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+        
+        // Scroll to form
+        createProjectForm.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function cancelEdit() {
+      editingProjectId = null;
+      createProjectForm.reset();
+      document.querySelector('#create-project-form button[type="submit"]').textContent = 'Create Project';
+      document.getElementById('cancel-edit-btn').style.display = 'none';
+    }
+
+    function showNotification(message, type) {
+      const notification = document.getElementById("notifications");
+      notification.textContent = message;
+      notification.className = `notice notice-${type}`;
+      notification.hidden = false;
+      setTimeout(() => notification.hidden = true, 3000);
+    }
+
+    // Load projects on page load
+    fetchProjects();
+  </script>
+</body>
+</html>

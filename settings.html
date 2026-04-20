@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - TaskFlow</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TaskFlow</div>
+      <nav class="menu">
+        <button class="menu-item" onclick="navigate('index.html')">Dashboard</button>
+        <button class="menu-item" onclick="navigate('projects.html')">Projects</button>
+        <button class="menu-item" onclick="navigate('my-tasks.html')">My Tasks</button>
+        <button class="menu-item" onclick="navigate('calendar.html')">Calendar</button>
+        <button class="menu-item" onclick="navigate('time-manager.html')">Time Manager</button>
+        <button class="menu-item active" onclick="navigate('settings.html')">Settings</button>
+      </nav>
+    </aside>
+
+    <main class="dashboard">
+      <header class="topbar">
+        <h1>Settings</h1>
+      </header>
+
+      <section class="content-grid" style="grid-template-columns: 250px 1fr;">
+        <section class="panel" style="height: fit-content;">
+          <div class="settings-menu">
+            <button class="settings-item active" onclick="switchTab('general')">General</button>
+            <button class="settings-item" onclick="switchTab('appearance')">Appearance</button>
+            <button class="settings-item" onclick="switchTab('notifications')">Notifications</button>
+            <button class="settings-item" onclick="switchTab('data')">Data & Privacy</button>
+            <button class="settings-item" onclick="switchTab('about')">About</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div id="general-tab" class="settings-tab active">
+            <h3>General Settings</h3>
+            <div class="setting-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" placeholder="Enter your username" />
+            </div>
+            <div class="setting-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" placeholder="Enter your email" />
+            </div>
+            <div class="setting-group">
+              <label for="language">Language</label>
+              <select id="language">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+              </select>
+            </div>
+            <div class="setting-group">
+              <label for="timezone">Timezone</label>
+              <select id="timezone">
+                <option value="UTC">UTC</option>
+                <option value="EST">Eastern Standard Time</option>
+                <option value="CST">Central Standard Time</option>
+                <option value="MST">Mountain Standard Time</option>
+                <option value="PST">Pacific Standard Time</option>
+              </select>
+            </div>
+            <button class="save-btn" onclick="saveGeneralSettings()">Save Changes</button>
+          </div>
+
+          <div id="appearance-tab" class="settings-tab">
+            <h3>Appearance Settings</h3>
+            <div class="setting-group">
+              <label for="theme">Theme</label>
+              <select id="theme" onchange="applyTheme(this.value)">
+                <option value="light">Light Mode</option>
+                <option value="dark">Dark Mode</option>
+                <option value="auto">Auto (System)</option>
+              </select>
+            </div>
+            <div class="setting-group">
+              <label for="accent-color">Accent Color</label>
+              <div class="color-picker">
+                <button class="color-option" style="background: #f97316;" onclick="setAccentColor('#f97316')" title="Orange">Orange (Default)</button>
+                <button class="color-option" style="background: #3b82f6;" onclick="setAccentColor('#3b82f6')" title="Blue">Blue</button>
+                <button class="color-option" style="background: #8b5cf6;" onclick="setAccentColor('#8b5cf6')" title="Purple">Purple</button>
+                <button class="color-option" style="background: #ec4899;" onclick="setAccentColor('#ec4899')" title="Pink">Pink</button>
+                <button class="color-option" style="background: #10b981;" onclick="setAccentColor('#10b981')" title="Green">Green</button>
+              </div>
+            </div>
+            <div class="setting-group">
+              <label for="font-size">Font Size</label>
+              <select id="font-size" onchange="changeFontSize(this.value)">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium (Default)</option>
+                <option value="large">Large</option>
+              </select>
+            </div>
+            <button class="save-btn" onclick="saveAppearanceSettings()">Save Changes</button>
+          </div>
+
+          <div id="notifications-tab" class="settings-tab">
+            <h3>Notification Settings</h3>
+            <div class="setting-group checkbox">
+              <input type="checkbox" id="task-notifications" checked />
+              <label for="task-notifications">Enable task notifications</label>
+            </div>
+            <div class="setting-group checkbox">
+              <input type="checkbox" id="deadline-warnings" checked />
+              <label for="deadline-warnings">Remind me of upcoming deadlines</label>
+            </div>
+            <div class="setting-group checkbox">
+              <input type="checkbox" id="timer-notifications" checked />
+              <label for="timer-notifications">Notify when timer completes</label>
+            </div>
+            <div class="setting-group checkbox">
+              <input type="checkbox" id="email-digest" />
+              <label for="email-digest">Send weekly email digest</label>
+            </div>
+            <div class="setting-group">
+              <label for="notification-time">Reminder time</label>
+              <input type="time" id="notification-time" value="09:00" />
+            </div>
+            <button class="save-btn" onclick="saveNotificationSettings()">Save Changes</button>
+          </div>
+
+          <div id="data-tab" class="settings-tab">
+            <h3>Data & Privacy</h3>
+            <div class="data-section">
+              <h4>Data Management</h4>
+              <p style="color: #6b7280; margin-bottom: 12px;">Manage your personal data and export your information.</p>
+              <button class="export-btn" onclick="exportData()">Export My Data</button>
+              <button class="export-btn secondary" onclick="backupData()">Backup Data</button>
+            </div>
+
+            <div class="data-section" style="margin-top: 24px;">
+              <h4>Storage Information</h4>
+              <div class="storage-info">
+                <div class="storage-item">
+                  <span>Tasks Data</span>
+                  <span id="storage-tasks">Calculating...</span>
+                </div>
+                <div class="storage-item">
+                  <span>Projects Data</span>
+                  <span id="storage-projects">Calculating...</span>
+                </div>
+                <div class="storage-item">
+                  <span>Timer Sessions</span>
+                  <span id="storage-timer">Calculating...</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="data-section" style="margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+              <h4>Danger Zone</h4>
+              <p style="color: #6b7280; margin-bottom: 12px;">These actions cannot be undone.</p>
+              <button class="delete-btn" onclick="clearAllData()">Clear All Data</button>
+            </div>
+          </div>
+
+          <div id="about-tab" class="settings-tab">
+            <h3>About TaskFlow</h3>
+            <div class="about-section">
+              <p><strong>TaskFlow v1.0.0</strong></p>
+              <p style="color: #6b7280; margin-top: 8px;">A modern, feature-rich task management application designed to help you stay productive and organized.</p>
+            </div>
+
+            <div class="about-section">
+              <h4>Features</h4>
+              <ul style="list-style: none; padding: 0;">
+                <li>Project Management</li>
+                <li>Task Tracking</li>
+                <li>Calendar View</li>
+                <li>Pomodoro Timer</li>
+                <li>Data Analytics</li>
+                <li>Local Data Storage</li>
+              </ul>
+            </div>
+
+            <div class="about-section">
+              <h4>Technology</h4>
+              <p style="color: #6b7280;">Built with vanilla HTML, CSS, and JavaScript. All your data is stored locally in your browser.</p>
+            </div>
+
+            <div class="about-section">
+              <h4>Browser Support</h4>
+              <p style="color: #6b7280;">Works best on modern browsers that support ES6 and localStorage APIs.</p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <style>
+    .settings-menu {
+      display: grid;
+      gap: 8px;
+    }
+
+    .settings-item {
+      text-align: left;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      background: #f9fafb;
+      border-radius: 8px;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .settings-item:hover {
+      background: #f3f4f6;
+    }
+
+    .settings-item.active {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      color: #c2410c;
+    }
+
+    .settings-tab {
+      display: none;
+    }
+
+    .settings-tab.active {
+      display: block;
+    }
+
+    .settings-tab h3 {
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .setting-group {
+      margin-bottom: 20px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .setting-group label {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .setting-group input,
+    .setting-group select {
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-family: inherit;
+    }
+
+    .setting-group.checkbox {
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .setting-group.checkbox input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .setting-group.checkbox label {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .color-picker {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .color-option:hover {
+      border-color: #d1d5db;
+      transform: scale(1.1);
+    }
+
+    .save-btn {
+      padding: 10px 20px;
+      background: #f97316;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+    }
+
+    .save-btn:hover {
+      opacity: 0.9;
+    }
+
+    .data-section {
+      margin-bottom: 24px;
+    }
+
+    .data-section h4 {
+      margin-bottom: 10px;
+      color: #1f2937;
+    }
+
+    .export-btn,
+    .delete-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #f9fafb;
+      color: #374151;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .export-btn:hover {
+      background: #f3f4f6;
+      border-color: #f97316;
+    }
+
+    .export-btn.secondary {
+      border-color: #3b82f6;
+    }
+
+    .export-btn.secondary:hover {
+      background: #e0f2fe;
+    }
+
+    .delete-btn {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
+
+    .delete-btn:hover {
+      background: #fee2e2;
+    }
+
+    .storage-info {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .storage-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .about-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .about-section:last-child {
+      border-bottom: none;
+    }
+
+    .about-section ul {
+      margin: 0;
+      color: #6b7280;
+      padding-left: 20px;
+    }
+
+    .about-section li {
+      margin-bottom: 4px;
+    }
+  </style>
+
+  <script>
+    function navigate(page) {
+      window.location.href = page;
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".settings-tab").forEach(tab => tab.classList.remove("active"));
+      document.querySelectorAll(".settings-item").forEach(item => item.classList.remove("active"));
+      document.getElementById(tabName + "-tab").classList.add("active");
+      event.target.classList.add("active");
+    }
+
+    async function saveGeneralSettings() {
+      const settings = {
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        language: document.getElementById("language").value,
+        timezone: document.getElementById("timezone").value
+      };
+
+      try {
+        await fetch('/api/settings/general', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settings)
+        });
+        alert("General settings saved!");
+      } catch (error) {
+        console.error('Error saving settings:', error);
+        alert("Error saving settings");
+      }
+    }
+
+    function saveAppearanceSettings() {
+      alert("Appearance settings saved!");
+    }
+
+    async function saveNotificationSettings() {
+      const settings = {
+        taskNotifications: document.getElementById("task-notifications").checked,
+        deadlineWarnings: document.getElementById("deadline-warnings").checked,
+        timerNotifications: document.getElementById("timer-notifications").checked,
+        emailDigest: document.getElementById("email-digest").checked,
+        notificationTime: document.getElementById("notification-time").value
+      };
+
+      try {
+        await fetch('/api/settings/notifications', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settings)
+        });
+        alert("Notification settings saved!");
+      } catch (error) {
+        console.error('Error saving notification settings:', error);
+        alert("Error saving notification settings");
+      }
+    }
+
+    async function applyTheme(theme) {
+      try {
+        await fetch('/api/settings/theme', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme })
+        });
+        alert("Theme changed to " + theme);
+      } catch (error) {
+        console.error('Error saving theme:', error);
+      }
+    }
+
+    async function setAccentColor(color) {
+      try {
+        await fetch('/api/settings/accentColor', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ color })
+        });
+        document.documentElement.style.setProperty("--accent-color", color);
+      } catch (error) {
+        console.error('Error saving accent color:', error);
+      }
+    }
+
+    async function changeFontSize(size) {
+      try {
+        await fetch('/api/settings/fontSize', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ size })
+        });
+        const fontSizes = {
+          small: "14px",
+          medium: "16px",
+          large: "18px"
+        };
+        document.documentElement.style.fontSize = fontSizes[size];
+      } catch (error) {
+        console.error('Error saving font size:', error);
+      }
+    }
+
+    async function exportData() {
+      try {
+        const response = await fetch('/api/export');
+        if (response.ok) {
+          const data = await response.json();
+          const json = JSON.stringify(data, null, 2);
+          const blob = new Blob([json], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `taskflow-export-${new Date().toISOString().split("T")[0]}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      } catch (error) {
+        console.error('Error exporting data:', error);
+        alert("Error exporting data");
+      }
+    }
+
+    function backupData() {
+      alert("Backup feature - Coming soon!");
+    }
+
+    function clearAllData() {
+      if (confirm("Are you SURE? This will delete ALL your data. This cannot be undone!")) {
+        if (confirm("Really? Last chance to confirm!")) {
+          // This would need additional API endpoints to actually clear database data
+          alert("Data clearing not fully implemented in API yet");
+        }
+      }
+    }
+
+    async function loadSettings() {
+      try {
+        // Load general settings
+        const generalResponse = await fetch('/api/settings/general');
+        if (generalResponse.ok) {
+          const generalSettings = await generalResponse.json();
+          if (generalSettings.username) document.getElementById("username").value = generalSettings.username;
+          if (generalSettings.email) document.getElementById("email").value = generalSettings.email;
+          if (generalSettings.language) document.getElementById("language").value = generalSettings.language;
+          if (generalSettings.timezone) document.getElementById("timezone").value = generalSettings.timezone;
+        }
+
+        // Load theme
+        const themeResponse = await fetch('/api/settings/theme');
+        if (themeResponse.ok) {
+          const themeData = await themeResponse.json();
+          if (themeData.theme) document.getElementById("theme").value = themeData.theme;
+        }
+
+        // Load accent color
+        const colorResponse = await fetch('/api/settings/accentColor');
+        if (colorResponse.ok) {
+          const colorData = await colorResponse.json();
+          if (colorData.color) {
+            document.documentElement.style.setProperty("--accent-color", colorData.color);
+          }
+        }
+
+        // Load font size
+        const fontResponse = await fetch('/api/settings/fontSize');
+        if (fontResponse.ok) {
+          const fontData = await fontResponse.json();
+          if (fontData.size) {
+            document.getElementById("font-size").value = fontData.size;
+            const fontSizes = { small: "14px", medium: "16px", large: "18px" };
+            document.documentElement.style.fontSize = fontSizes[fontData.size];
+          }
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    }
+
+    function updateStorageInfo() {
+      // This would need API endpoints to get actual storage info
+      document.getElementById("storage-tasks").textContent = "API connected";
+      document.getElementById("storage-projects").textContent = "API connected";
+      document.getElementById("storage-timer").textContent = "API connected";
+    }
+
+    // Load settings on page load
+    loadSettings();
+    updateStorageInfo();
+  </script>
+</body>
+</html>

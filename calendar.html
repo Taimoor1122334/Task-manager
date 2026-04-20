@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar - TaskFlow</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">TaskFlow</div>
+      <nav class="menu">
+        <button class="menu-item" onclick="navigate('index.html')">Dashboard</button>
+        <button class="menu-item" onclick="navigate('projects.html')">Projects</button>
+        <button class="menu-item" onclick="navigate('my-tasks.html')">My Tasks</button>
+        <button class="menu-item active" onclick="navigate('calendar.html')">Calendar</button>
+        <button class="menu-item" onclick="navigate('time-manager.html')">Time Manager</button>
+        <button class="menu-item" onclick="navigate('settings.html')">Settings</button>
+      </nav>
+    </aside>
+
+    <main class="dashboard">
+      <header class="topbar">
+        <h1>Calendar</h1>
+      </header>
+
+      <section class="content-grid" style="grid-template-columns: 1fr 350px;">
+        <section class="panel">
+          <div class="panel-header">
+            <h3 id="calendar-month"></h3>
+          </div>
+
+            <div class="calendar-large">
+            <div class="calendar-header">
+              <button class="calendar-nav-btn" onclick="previousMonth()">← Previous</button>
+              <span id="month-year" class="month-year-display"></span>
+              <button class="calendar-nav-btn" onclick="nextMonth()">Next →</button>
+            </div>
+
+            <div class="calendar-weekdays">
+              <div>Sun</div>
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
+            </div>
+
+            <div class="calendar-dates" id="calendar-grid"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Selected Date Tasks</h3>
+          </div>
+
+          <div id="selected-date-display" style="margin-bottom: 12px; padding: 10px; background: #f9fafb; border-radius: 8px; text-align: center;">
+            <p style="color: #6b7280; font-size: 0.875rem;">Select a date</p>
+          </div>
+
+          <div id="date-tasks-list" class="task-list">
+            <li style="color: #6b7280; text-align: center;">No tasks selected</li>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <style>
+    .calendar-large {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .month-year-display {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .calendar-nav-btn {
+      background: transparent;
+      border: none;
+      color: #f97316;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 4px 12px;
+      transition: all 0.2s;
+      border-radius: 6px;
+    }
+
+    .calendar-nav-btn:hover {
+      background: #fff7ed;
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0;
+      padding: 12px 8px;
+      background: #f3f4f6;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .calendar-weekdays div {
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 8px;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .calendar-dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0;
+      padding: 8px;
+    }
+
+    .calendar-date {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      position: relative;
+      background: #ffffff;
+      transition: all 0.2s;
+      margin: 2px;
+      font-weight: 500;
+    }
+
+    .calendar-date:hover {
+      background: #fff7ed;
+      border-color: #f97316;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.1);
+    }
+
+    .calendar-date.other-month {
+      color: #d1d5db;
+      background: #fafafa;
+      cursor: default;
+    }
+
+    .calendar-date.other-month:hover {
+      background: #fafafa;
+      border-color: #e5e7eb;
+    }
+
+    .calendar-date.has-tasks {
+      background: #fff7ed;
+      border: 2px solid #fed7aa;
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    .calendar-date.has-tasks::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      width: 6px;
+      height: 6px;
+      background: #f97316;
+      border-radius: 50%;
+    }
+
+    .calendar-date.today {
+      background: #f97316;
+      color: #ffffff;
+      font-weight: 700;
+      border-color: #ea580c;
+    }
+
+    .calendar-date.today:hover {
+      background: #ea580c;
+    }
+
+    .calendar-date.selected {
+      outline: 2px solid #f97316;
+      outline-offset: -2px;
+      background: #fef3c7;
+    }
+
+    .date-nav-btn {
+      padding: 8px 16px;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      color: #374151;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .date-nav-btn:hover {
+      background: #f3f4f6;
+      border-color: #f97316;
+    }
+
+    .task-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .task-list li {
+      padding: 10px;
+      background: #f9fafb;
+      border-left: 4px solid #f97316;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .task-list li:hover {
+      background: #f3f4f6;
+    }
+  </style>
+
+  <script>
+  <script>
+    function navigate(page) {
+      window.location.href = page;
+    }
+
+    function parseLocalDate(dateString) {
+      // Parse date string in local timezone (not UTC)
+      const [year, month, day] = dateString.split('-');
+      return new Date(year, parseInt(month) - 1, day);
+    }
+
+    let currentDate = new Date();
+    let selectedDate = null;
+let tasks = [];
+
+async function fetchTasks() {
+  try {
+    const response = await fetch('/api/all-tasks');
+    if (response.ok) {
+      tasks = await response.json();
+      renderCalendar();
+    }
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+  }
+}
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      document.getElementById("month-year").textContent = currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      document.getElementById("calendar-month").textContent = currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      const prevLastDate = new Date(year, month, 0).getDate();
+
+      const grid = document.getElementById("calendar-grid");
+      grid.innerHTML = "";
+
+      // Previous month dates
+      for (let i = firstDay - 1; i >= 0; i--) {
+        createDateCell(prevLastDate - i, "other-month");
+      }
+
+      // Current month dates
+      for (let day = 1; day <= lastDate; day++) {
+        createDateCell(day, "current-month");
+      }
+
+      // Next month dates
+      const remaining = 42 - (firstDay + lastDate);
+      for (let day = 1; day <= remaining; day++) {
+        createDateCell(day, "other-month");
+      }
+    }
+
+    function createDateCell(day, type) {
+      const cell = document.createElement("div");
+      cell.className = "calendar-date";
+
+      if (type === "other-month") {
+        cell.classList.add("other-month");
+        cell.textContent = day;
+      } else {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split("T")[0];
+
+        cell.textContent = day;
+
+        // Check if today
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) {
+          cell.classList.add("today");
+        }
+
+        // Check if has tasks
+        const hasTasks = tasks.some(task => task.dueDate === dateStr);
+        if (hasTasks) {
+          cell.classList.add("has-tasks");
+        }
+
+        // Check if selected
+        if (selectedDate === dateStr) {
+          cell.classList.add("selected");
+        }
+
+        cell.onclick = () => selectDate(dateStr);
+      }
+
+      document.getElementById("calendar-grid").appendChild(cell);
+    }
+
+    function selectDate(dateStr) {
+      selectedDate = dateStr;
+      const date = parseLocalDate(dateStr);
+
+      document.getElementById("selected-date-display").innerHTML = `
+        <p style="margin: 0; font-weight: 600;">${date.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+      `;
+
+      const dateTasks = tasks.filter(task => task.dueDate === dateStr);
+
+      if (dateTasks.length === 0) {
+        document.getElementById("date-tasks-list").innerHTML = '<li style="color: #6b7280; text-align: center;">No tasks on this date</li>';
+        return;
+      }
+
+      document.getElementById("date-tasks-list").innerHTML = dateTasks.map(task => `
+        <li style="border-left-color: ${getCategoryColor(task.category)}; ${task.completed ? 'opacity: 0.6; text-decoration: line-through;' : ''}">
+          <strong>${task.title}</strong>
+          <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 0.8rem;">${task.description}</p>
+        </li>
+      `).join("");
+
+      renderCalendar();
+    }
+
+    function getCategoryColor(category) {
+      const colors = {
+        work: "#3b82f6",
+        personal: "#8b5cf6",
+        shopping: "#f59e0b"
+      };
+      return colors[category] || "#f97316";
+    }
+
+    function previousMonth() {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar();
+    }
+
+    function nextMonth() {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
+    }
+
+    // Load tasks on page load
+    fetchTasks();
+  </script>
+</body>
+</html>
