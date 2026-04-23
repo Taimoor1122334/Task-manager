@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Time Manager - TaskFlow</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="js/config.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -259,7 +260,7 @@
 
     async function fetchSessions() {
       try {
-        const response = await fetch('/api/timer-sessions');
+        const response = await fetch(`${API_BASE}/api/timer-sessions`);
         if (response.ok) {
           sessionsData = await response.json();
           updateStats();
@@ -333,7 +334,7 @@
       };
 
       try {
-        const response = await fetch('/api/timer-sessions', {
+        const response = await fetch(`${API_BASE}/api/timer-sessions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sessionData)

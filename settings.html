@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings - TaskFlow</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="js/config.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -409,7 +410,7 @@
       };
 
       try {
-        await fetch('/api/settings/general', {
+        await fetch(`${API_BASE}/api/settings/general`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(settings)
@@ -435,7 +436,7 @@
       };
 
       try {
-        await fetch('/api/settings/notifications', {
+        await fetch(`${API_BASE}/api/settings/notifications`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(settings)
@@ -449,7 +450,7 @@
 
     async function applyTheme(theme) {
       try {
-        await fetch('/api/settings/theme', {
+        await fetch(`${API_BASE}/api/settings/theme`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ theme })
@@ -462,7 +463,7 @@
 
     async function setAccentColor(color) {
       try {
-        await fetch('/api/settings/accentColor', {
+        await fetch(`${API_BASE}/api/settings/accentColor`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ color })
@@ -475,7 +476,7 @@
 
     async function changeFontSize(size) {
       try {
-        await fetch('/api/settings/fontSize', {
+        await fetch(`${API_BASE}/api/settings/fontSize`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ size })
@@ -493,7 +494,7 @@
 
     async function exportData() {
       try {
-        const response = await fetch('/api/export');
+        const response = await fetch(`${API_BASE}/api/export`);
         if (response.ok) {
           const data = await response.json();
           const json = JSON.stringify(data, null, 2);
@@ -527,7 +528,7 @@
     async function loadSettings() {
       try {
         // Load general settings
-        const generalResponse = await fetch('/api/settings/general');
+        const generalResponse = await fetch(`${API_BASE}/api/settings/general`);
         if (generalResponse.ok) {
           const generalSettings = await generalResponse.json();
           if (generalSettings.username) document.getElementById("username").value = generalSettings.username;
@@ -537,14 +538,14 @@
         }
 
         // Load theme
-        const themeResponse = await fetch('/api/settings/theme');
+        const themeResponse = await fetch(`${API_BASE}/api/settings/theme`);
         if (themeResponse.ok) {
           const themeData = await themeResponse.json();
           if (themeData.theme) document.getElementById("theme").value = themeData.theme;
         }
 
         // Load accent color
-        const colorResponse = await fetch('/api/settings/accentColor');
+        const colorResponse = await fetch(`${API_BASE}/api/settings/accentColor`);
         if (colorResponse.ok) {
           const colorData = await colorResponse.json();
           if (colorData.color) {
@@ -553,7 +554,7 @@
         }
 
         // Load font size
-        const fontResponse = await fetch('/api/settings/fontSize');
+        const fontResponse = await fetch(`${API_BASE}/api/settings/fontSize`);
         if (fontResponse.ok) {
           const fontData = await fontResponse.json();
           if (fontData.size) {

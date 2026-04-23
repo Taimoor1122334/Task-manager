@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Tasks - TaskFlow</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="js/config.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -191,7 +192,7 @@
       container.innerHTML = '<div class="empty">Loading tasks...</div>';
 
       try {
-        const response = await fetch('/api/all-tasks');
+        const response = await fetch(`${API_BASE}/api/all-tasks`);
         if (response.ok) {
           tasks = await response.json();
           console.log('Fetched tasks:', tasks); // Debug log

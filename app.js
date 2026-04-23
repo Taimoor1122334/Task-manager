@@ -40,7 +40,7 @@ let timerInterval = null;
 
 async function loadProjects() {
   try {
-    const response = await fetch('/api/projects');
+    const response = await fetch(`${API_BASE}/api/projects`);
     if (response.ok) {
       projects = await response.json();
       renderProjects();
@@ -54,7 +54,7 @@ async function loadProjects() {
 async function loadTasks() {
   if (!selectedProjectId) return;
   try {
-    const response = await fetch(`/api/tasks?projectId=${selectedProjectId}`);
+    const response = await fetch(`${API_BASE}/api/tasks?projectId=${selectedProjectId}`);
     if (response.ok) {
       tasks = await response.json();
       renderTasks();
@@ -257,7 +257,7 @@ function renderTasks() {
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(path, {
+  const response = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json" },
     ...options
   });

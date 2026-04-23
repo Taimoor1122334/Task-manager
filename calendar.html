@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendar - TaskFlow</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="js/config.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -260,7 +261,7 @@ let tasks = [];
 
 async function fetchTasks() {
   try {
-    const response = await fetch('/api/all-tasks');
+    const response = await fetch(`${API_BASE}/api/all-tasks`);
     if (response.ok) {
       tasks = await response.json();
       renderCalendar();
