@@ -1,1 +1,23 @@
-task-manager-c98ec-firebase-adminsdk-fbsvc-994d0b9258.json
+# Firebase Secrets - NEVER commit these
+*firebase-adminsdk*.json
+*service-account*.json
+*credentials*.json
+*.key
+
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# Database
+*.db
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
