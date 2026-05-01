@@ -16,13 +16,16 @@ const serviceAccount = {
 };
 
 // Only initialize if we have valid credentials
+let db = null;
 if (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
+  db = admin.firestore();
+  console.log("Firebase initialized successfully");
+} else {
+  console.log("Warning: Firebase credentials not configured. Set environment variables.");
 }
-
-const db = admin.firestore();
 
 // Helper to handle CORS
 function handleCORS(res) {
@@ -36,6 +39,14 @@ export default async function handler(req, res) {
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
+  }
+
+  // Check if Firebase is initialized
+  if (!db) {
+    return res.status(503).json({ 
+      error: "Firebase is not configured. Please set environment variables.",
+      details: "Set FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, FIREBASE_PROJECT_ID"
+    });
   }
 
   const { url } = req;

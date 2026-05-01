@@ -3,7 +3,7 @@
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? ''  // Local development - uses relative URLs
-  : 'https://task-manager-api.onrender.com'; // Production - replace with your Render URL
+  : ''; // Production - Vercel serves API from same domain
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {
